@@ -1,0 +1,44 @@
+# HTTP Server
+[server]
+	Address     = ":8199"
+	ServerRoot  = "public"
+	ServerAgent = "chat-room"
+	LogPath     = "/tmp/log/gf-app/server"
+
+# Logger.
+[logger]
+    Path        = "/tmp/log/gf-app"
+    Level       = "all"
+    Stdout      = true
+
+# Template.
+[viewer]
+    Path        = "template"
+    DefaultFile = "index.html"
+    Delimiters  =  ["${", "}"]
+
+# Database.
+[database]
+    link  = "mysql:root:123456@tcp(yourmysqlserver.com:3306)/chatroom"
+    debug = true
+    # Database logger.
+    [database.logger]
+        Path   = "/tmp/log/gf-app/sql"
+        Level  = "all"
+        Stdout = true
+
+# Redis数据库配置
+[redis]
+  default = "123.123.123.123:6379,0,123456"
+  cache   = "123.123.123.123:6379,1,123456?idleTimeout=600"
+
+[compiler]
+    name     = "chat-room"
+    version  = "1.0.0"
+    arch     = "amd64"
+    system   = "linux,windows"
+    output   = ""
+    path     = "./bin"
+
+[avatar]
+    url     = "/resource/avatar/"
