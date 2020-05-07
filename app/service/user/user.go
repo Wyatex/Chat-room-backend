@@ -133,28 +133,6 @@ func Login(data *LoginInput, session *ghttp.Session) (error, int) {
 	return nil, SUCCEED
 }
 
-// 用户改名接口,改名成功返回true，失败返回false
-func SetNickName(newName string, session *ghttp.Session) bool {
-	// 判断新昵称是否存在
-	if !CheckNickName(newName) {
-		return false
-	}
-	data := (*SessionUser)(nil)
-	if err := gconv.Struct(session.Get(USER_SESSION_MARK), &data); err!=nil {
-		return false
-	}
-	model, err1 := user.Model.FindOne("passport = ?", data.Passport)
-	if err1 != nil {
-		return false
-	}
-	model.Nickname = newName
-	model.Save()
-	session.Remove(USER_SESSION_MARK)
-	data.Nickname = newName
-	session.Set(USER_SESSION_MARK, *data)
-	return true
-}
-
 // 通过Session返回用户名
 func GetPassport(session *ghttp.Session) string {
 	var u *SessionUser
@@ -189,6 +167,62 @@ func SetAvatar(session *ghttp.Session, img string) error {
 	u.Avatar = url
 	session.Set(USER_SESSION_MARK, *u)
 	return nil
+}
+
+// 用户改名接口,改名成功返回true，失败返回false
+func SetNickName(newName string, session *ghttp.Session) bool {
+	//// 判断新昵称是否存在
+	//if !CheckNickName(newName) {
+	//	return false
+	//}
+	data := (*SessionUser)(nil)
+	if err := gconv.Struct(session.Get(USER_SESSION_MARK), &data); err!=nil {
+		return false
+	}
+	model, err1 := user.Model.FindOne("passport = ?", data.Passport)
+	if err1 != nil {
+		return false
+	}
+	model.Nickname = newName
+	model.Save()
+	session.Remove(USER_SESSION_MARK)
+	data.Nickname = newName
+	session.Set(USER_SESSION_MARK, *data)
+	return true
+}
+
+// 用户改性别接口
+func SetSex(sex int, session *ghttp.Session) {
+	data := (*SessionUser)(nil)
+	if err := gconv.Struct(session.Get(USER_SESSION_MARK), &data); err!=nil {
+		return
+	}
+	model, err1 := user.Model.FindOne("passport = ?", data.Passport)
+	if err1 != nil {
+		return
+	}
+	model.Sex = sex
+	model.Save()
+	session.Remove(USER_SESSION_MARK)
+	data.Sex = sex
+	session.Set(USER_SESSION_MARK, *data)
+}
+
+// 用户改签名
+func SetSignature(s string, session *ghttp.Session) {
+	data := (*SessionUser)(nil)
+	if err := gconv.Struct(session.Get(USER_SESSION_MARK), &data); err!=nil {
+		return
+	}
+	model, err1 := user.Model.FindOne("passport = ?", data.Passport)
+	if err1 != nil {
+		return
+	}
+	model.Signature = s
+	model.Save()
+	session.Remove(USER_SESSION_MARK)
+	data.Signature = s
+	session.Set(USER_SESSION_MARK, *data)
 }
 
 // 检查账号是否符合规范(目前仅检查唯一性),存在返回false,否则true

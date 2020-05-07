@@ -149,6 +149,30 @@ func (c *Controller) Profile(r *ghttp.Request) {
 	}
 }
 
+// @summary 修改本用户详情信息
+// @tags    用户服务
+// @produce json
+// @param   nickname formData string true "新昵称"
+// @param   sex formData string true "性别"
+// @param   signature formData string true "签名"
+// @router  /user/set-profile [POST]
+// @success 200 {object} response.JsonResponse "用户信息"
+func (c *Controller) SetProfile(r *ghttp.Request) {
+	nickname := r.GetString("nickname")
+	sex := r.GetInt("sex")
+	signature := r.GetString("signature")
+	if err := user.SetNickName(nickname, r.Session); err == false {
+		response.Fail(r, "该昵称已被使用")
+	}
+	if sex==0 || sex==1 || sex==2 {
+		user.SetSex(sex, r.Session)
+	}
+	if signature != "" {
+		user.SetSignature(signature, r.Session)
+	}
+	response.Succ(r, "修改成功")
+}
+
 
 // 修改昵称
 // @summary 用户改名接口
