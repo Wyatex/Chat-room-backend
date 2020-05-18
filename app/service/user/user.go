@@ -6,9 +6,13 @@ import (
 	"gf-app/app/model/user"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/net/ghttp"
+	"github.com/gogf/gf/net/gsmtp"
+	"github.com/gogf/gf/os/gcache"
 	"github.com/gogf/gf/os/gtime"
 	"github.com/gogf/gf/util/gconv"
+	"github.com/gogf/gf/util/grand"
 	"github.com/gogf/gf/util/gvalid"
+	"time"
 )
 
 const (
@@ -40,6 +44,8 @@ type LoginInput struct {
 	Passport string `v:"required#账号不能为空"`
 	Password string `v:"required#请输入密码"`
 }
+
+var c = gcache.New()
 
 // 用户注册
 func SignUp(data *SignUpInput) error {
@@ -294,4 +300,44 @@ func GetOthersProfile(passport string) (u *SessionUser, err error) {
 	}
 	u = &sessionData
 	return u, nil
+}
+
+func Sendmail(p string) error {
+	model, err := user.Model.FindOne("passport = ?", p)
+	if err != nil {
+		return err
+	}
+	if model == nil {
+		return errors.New("用户不存在")
+	}
+
+	addr := g.Cfg().GetString("mail.addr")
+	user := g.Cfg().GetString("mail.username")
+	passwd := g.Cfg().GetString("mail.password")
+	sm := gsmtp.New(addr, user, passwd)
+	code := grand.Digits(6)
+	s := "您的验证码是：" + code + " ; 请不要将验证码发给任何，该验证码在5分钟之内有效。"
+	err1 := sm.SendMail("wyrm1989@foxmail.com", model.Email, "验证码", s)
+	if err != nil {
+		return err1
+	}
+	c.Set(p, code, 5 * time.Minute)
+	return nil
+}
+
+func SetNewPassport(passport string, code string, password string) error {
+	model, err := user.Model.FindOne("passport = ?", passport)
+	if err != nil {
+		return err
+	}
+	if model == nil {
+		return errors.New("用户不存在")
+	}
+	if code == c.Get(passport) {
+		model.Password = password
+		model.Save()
+		c.Remove(passport)
+		return nil
+	}
+	return errors.New("验证码不正确")
 }

@@ -40,5 +40,13 @@
     output   = ""
     path     = "./bin"
 
+# 头像文件的路由
 [avatar]
     url     = "/resource/avatar/"
+
+# smtp
+[mail]
+    addr        = "smtp.qq.com:587"
+    username    = "youremail@qq.com"
+    password    = "yourpassword"
+
