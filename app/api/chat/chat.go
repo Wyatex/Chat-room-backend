@@ -66,7 +66,7 @@ func WebSocket(r *ghttp.Request) {
 			users.Remove(u)
 			conn.Remove(ws)
 			// 通知所有客户端当前用户已下线
-
+			writeUsers()
 			break
 		}
 		// json参数解析
