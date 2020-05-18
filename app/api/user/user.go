@@ -152,15 +152,17 @@ func (c *Controller) Profile(r *ghttp.Request) {
 // @summary 修改本用户详情信息
 // @tags    用户服务
 // @produce json
-// @param   nickname formData string true "新昵称"
-// @param   sex formData string true "性别"
-// @param   signature formData string true "签名"
+// @param   nickname query string true "新昵称"
+// @param   sex query string true "性别"
+// @param   signature query string true "签名"
+// @param   passport query string true "签名"
 // @router  /user/set-profile [POST]
 // @success 200 {object} response.JsonResponse "用户信息"
 func (c *Controller) SetProfile(r *ghttp.Request) {
 	nickname := r.GetString("nickname")
 	sex := r.GetInt("sex")
 	signature := r.GetString("signature")
+	password := r.GetString("password")
 	if err := user.SetNickName(nickname, r.Session); err == false {
 		response.Fail(r, "该昵称已被使用")
 	}
@@ -169,6 +171,12 @@ func (c *Controller) SetProfile(r *ghttp.Request) {
 	}
 	if signature != "" {
 		user.SetSignature(signature, r.Session)
+	}
+	if password != "" {
+		err1 := user.SetPassword(password, r.Session)
+		if err1 != nil {
+			response.Fail(r, err1.Error())
+		}
 	}
 	response.Succ(r, "修改成功")
 }

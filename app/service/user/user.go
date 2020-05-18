@@ -225,6 +225,21 @@ func SetSignature(s string, session *ghttp.Session) {
 	session.Set(USER_SESSION_MARK, *data)
 }
 
+// 用户改密码接口
+func SetPassword(p string, session *ghttp.Session) error {
+	var u *SessionUser
+	if err := session.GetStruct(USER_SESSION_MARK, &u); err != nil {
+		return err
+	}
+	model, err1 := user.FindOne("passport = ?", u.Passport)
+	if err1 != nil {
+		return err1
+	}
+	model.Password = p
+	model.Save()
+	return nil
+}
+
 // 检查账号是否符合规范(目前仅检查唯一性),存在返回false,否则true
 func CheckPassport(passport string) bool {
 	if i, err := user.FindCount("passport", passport); err != nil {
