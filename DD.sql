@@ -1,5 +1,6 @@
 -- chatroom.`user` definition
 
+
 CREATE TABLE `user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `passport` varchar(100) DEFAULT NULL,
